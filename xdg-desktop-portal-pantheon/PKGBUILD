@@ -1,0 +1,40 @@
+# Maintainer: Federico Damián Schonborn <fdschonborn@gmail.com>
+
+_pkgname=portals
+pkgname=xdg-desktop-portal-pantheon
+pkgver=1.1.0
+pkgrel=1
+pkgdesc="Pantheon XDG Desktop Portals"
+url="https://github.com/elementary/portals"
+arch=(x86_64)
+license=(GPL3)
+provides=(xdg-desktop-portal-impl)
+depends=(
+  granite
+  libhandy
+)
+makedepends=(
+  meson
+  vala
+  systemd-libs
+  gtk3
+)
+source=(
+  "$_pkgname-$pkgver.tar.gz::https://github.com/elementary/portals/archive/refs/tags/$pkgver.tar.gz"
+)
+sha256sums=(
+  47b467382febf26594fce87867bd666cea9a6c491f4ffe7d6fd3a7ba2a89d1ac
+)
+
+build() {
+    arch-meson "$_pkgname-$pkgver" build
+    meson compile -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    meson install -C build --destdir "$pkgdir"
+}
