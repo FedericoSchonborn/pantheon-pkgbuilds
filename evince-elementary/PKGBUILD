@@ -1,0 +1,84 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Federico Damián Schonborn <fdschonborn@gmail.com>
+
+pkgbase=evince-elementary
+pkgname=(evince-elementary evince-elementary-lib-docs)
+pkgver=42.3
+pkgrel=2
+pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt), with elementaryOS modifications"
+url="https://wiki.gnome.org/Apps/Evince"
+arch=(x86_64)
+license=(GPL)
+depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre dconf libsecret libsynctex
+         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy
+         gvfs)
+makedepends=(libnautilus-extension texlive-bin gobject-introspection gi-docgen git meson
+             appstream-glib yelp-tools)
+conflicts=(evince evince-lib-docs)
+options=(debug)
+_commit=0ff17893679b05e7635e76e5c77384995b802f81  # tags/42.3^0
+_commit_elementary=c7642d34ff71093ff056ef226e3402896635f353
+source=(
+  "git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
+  "elementary-evince::git+https://github.com/elementary/evince.git#commit=$_commit_elementary"
+)
+sha256sums=(
+  'SKIP'
+  'SKIP'
+)
+
+pkgver() {
+  cd evince
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd evince
+}
+
+build() {
+  arch-meson evince build -D ps=enabled
+  arch-meson elementary-evince build-elementary
+  meson compile -C build
+  meson compile -C build-elementary
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_evince-elementary() {
+  provides=(libev{document,view}3.so)
+  optdepends=('texlive-bin: DVI support')
+  groups=(gnome)
+
+  meson install -C build --destdir "$pkgdir"
+
+  # Remove upstream GNOME icons.
+  for size in scalable symbolic; do
+    rm "$pkgdir/usr/share/icons/hicolor/$size/apps/org.gnome.Evince.svg"
+  done
+  meson install -C build-elementary --destdir "$pkgdir"
+
+  _pick lib-docs "$pkgdir"/usr/share/doc/lib*
+}
+
+package_evince-elementary-lib-docs() {
+  pkgdesc+=" (library API documentation)"
+  depends=()
+
+  mv lib-docs/* "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

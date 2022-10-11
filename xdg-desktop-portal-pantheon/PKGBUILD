@@ -19,6 +19,7 @@ makedepends=(
   systemd-libs
   gtk3
 )
+options=(debug)
 source=(
   "$_pkgname-$pkgver.tar.gz::https://github.com/elementary/portals/archive/refs/tags/$pkgver.tar.gz"
 )
