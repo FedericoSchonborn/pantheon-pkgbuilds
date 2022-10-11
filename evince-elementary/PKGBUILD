@@ -66,9 +66,8 @@ package_evince-elementary() {
   meson install -C build --destdir "$pkgdir"
 
   # Remove upstream GNOME icons.
-  for size in scalable symbolic; do
-    rm "$pkgdir/usr/share/icons/hicolor/$size/apps/org.gnome.Evince.svg"
-  done
+  rm -rf "$pkgdir/usr/share/icons/hicolor/scalable"
+  rm -rf "$pkgdir/usr/share/icons/hicolor/symbolic"
   meson install -C build-elementary --destdir "$pkgdir"
 
   _pick lib-docs "$pkgdir"/usr/share/doc/lib*
