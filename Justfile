@@ -1,11 +1,23 @@
-# Build a package using `makepkg`.
-build PACKAGE:
-  cd {{PACKAGE}} && makepkg --force --clean --syncdeps --log
+@_default:
+  just --list
 
-# Build a package using `extra-x86_64-build`.
-dev-build PACKAGE:
-  cd {{PACKAGE}} && extra-x86_64-build
+# Build one or more packages using `makepkg`.
+build +PACKAGE:
+  for package in {{ PACKAGE }}; do \
+    pushd $package && makepkg --force --clean --syncdeps --log; \
+    popd; \
+  done
 
-# Clear all build outputs.
-clean PACKAGE:
-  cd {{PACKAGE}} && rm -rfv *tar.gz *.pkg.tar* *.log
+# Build one or more packages using `extra-x86_64-build`.
+dev-build +PACKAGE:
+  for package in {{ PACKAGE }}; do \
+    pushd $package && extra-x86_64-build; \
+    popd; \
+  done
+
+# Clear all build outputs for one or more packages.
+clean +PACKAGE:
+  for package in {{ PACKAGE }}; do \
+    pushd $package && rm -rfv *tar.gz *.pkg.tar* *.log; \
+    popd; \
+  done
