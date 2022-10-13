@@ -1,3 +1,3 @@
-# PKGBUILDs
+# Pantheon PKGBUILDs
 
-PKGBUILD scripts for Arch Linux.
+Pantheon desktop-related PKGBUILDs for Arch Linux.
